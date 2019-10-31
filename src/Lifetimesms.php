@@ -36,6 +36,18 @@ class Lifetimesms
     		return ['status' => false, 'response' => 'Invalid phone number'];
     	}
 
+        $date = $time = null;
+
+        if (isset($params['date']) && !empty($params['date'])) {
+            # code...
+            $date = $params['date'];
+        }
+
+        if (isset($params['time']) && !empty($params['time'])) {
+            # code...
+            $time = $params['time'];
+        }
+
     	$api_token = config('lifetimesms.api_token');
     	$api_secret = config('lifetimesms.api_secret');
 
@@ -53,7 +65,7 @@ class Lifetimesms
     		$type = 'text';
     	}
 
-    	$uri = 'http://lifetimesms.com/plain?api_token=' . urlencode($api_token) . '&api_secret=' . urlencode($api_secret) . '&to=' . urlencode($params['to']) . '&from=' . urlencode($params['from']) . '&message=' . urlencode($params['message']) . '&type=' . $type . '';
+    	$uri = 'http://lifetimesms.com/plain?api_token=' . urlencode($api_token) . '&api_secret=' . urlencode($api_secret) . '&to=' . urlencode($params['to']) . '&from=' . urlencode($params['from']) . '&message=' . urlencode($params['message']) . '&type=' . $type . '&date=' . $date . '&time=' . $time . '';
 
     	$response = self::makeSingleAPIGetRequest($uri);
 
@@ -119,6 +131,223 @@ class Lifetimesms
     	}
 
     	return ['status' => false, 'response' => $response];
+    }
+
+    public function personalizedSMS($params = [])
+    {
+        if (empty($params)) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!isset($params['data']) || empty($params['data'])) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!isset($params['from']) || empty($params['from'])) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!is_array($params['data'])) {
+            # code...
+            return ['status' => false, 'response' => 'Invalid data supplied'];
+        }
+
+        $api_token = config('lifetimesms.api_token');
+        $api_secret = config('lifetimesms.api_secret');
+
+        if (!$api_secret || !$api_token) {
+            # code...
+            return ['status' => false, 'response' => 'API credentials are missing'];
+        }
+
+        $date = $time = '';
+
+        if (isset($params['date']) && !empty($params['date'])) {
+            # code...
+            $date = $params['date'];
+        }
+
+        if (isset($params['time']) && !empty($params['time'])) {
+            # code...
+            $time = $params['time'];
+        }
+
+        $client = new Client(['timeout' => 320]);
+        $recieve_response = null;
+
+        $query = [
+            [
+                'name' => 'api_token',
+                'contents' => $api_token,
+            ],
+            [
+                'name' => 'api_secret',
+                'contents' => $api_secret,
+            ],
+            [
+                'name' => 'from',
+                'contents' => $params['from'],
+            ],
+            [
+                'name' => 'data',
+                'contents' => json_encode($params['data']),
+            ],
+            [
+                'name' => 'date',
+                'contents' => $date,
+            ],
+            [
+                'name' => 'time',
+                'contents' => $time,
+            ],
+        ];
+
+        $requests = function() use ($query) {
+
+            $uri = "http://Lifetimesms.com/personalized";
+            $parameters = new MultipartStream($query);
+            yield 1 => new GuzzleRequest('POST', $uri, [], $parameters);
+        };
+
+        $pool = new Pool($client, $requests(1), [
+            'concurrency' => 1,
+            'fulfilled' => function ($response, $id) use (&$recieve_response) {
+
+                $response = $response->getBody()->getContents();
+                $recieve_response = json_decode($response, true);
+            },
+            'rejected' => function ($reason, $id) use (&$recieve_response) {
+                $recieve_response = $reason->getMessage();
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        $response = $recieve_response;
+
+        if (isset($response['status']) && $response['status'] == 1) {
+            # code...
+            return ['status' => true, 'response' => $response];
+        }
+
+        return ['status' => false, 'response' => $response];
+    }
+
+    public function voiceSMS($params = [])
+    {
+        if (empty($params)) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!isset($params['to']) || empty($params['to'])) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!isset($params['from']) || empty($params['from'])) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!isset($params['voice_id']) || empty($params['voice_id'])) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!is_array($params['to'])) {
+            # code...
+            return ['status' => false, 'response' => 'Invalid phone numbers'];
+        }
+
+        $api_token = config('lifetimesms.api_token');
+        $api_secret = config('lifetimesms.api_secret');
+
+        if (!$api_secret || !$api_token) {
+            # code...
+            return ['status' => false, 'response' => 'API credentials are missing'];
+        }
+
+        $date = $time = '';
+
+        if (isset($params['date']) && !empty($params['date'])) {
+            # code...
+            $date = $params['date'];
+        }
+
+        if (isset($params['time']) && !empty($params['time'])) {
+            # code...
+            $time = $params['time'];
+        }
+
+        $client = new Client(['timeout' => 320]);
+        $recieve_response = null;
+
+        $query = [
+            [
+                'name' => 'api_token',
+                'contents' => $api_token,
+            ],
+            [
+                'name' => 'api_secret',
+                'contents' => $api_secret,
+            ],
+            [
+                'name' => 'voice_id',
+                'contents' => $params['voice_id'],
+            ],
+            [
+                'name' => 'from',
+                'contents' => $params['from'],
+            ],
+            [
+                'name' => 'to',
+                'contents' => implode(",", $params['to']),
+            ],
+            [
+                'name' => 'date',
+                'contents' => $date,
+            ],
+            [
+                'name' => 'time',
+                'contents' => $time,
+            ],
+        ];
+
+        $requests = function() use ($query) {
+
+            $uri = "http://Lifetimesms.com/voice-sms";
+            $parameters = new MultipartStream($query);
+            yield 1 => new GuzzleRequest('POST', $uri, [], $parameters);
+        };
+
+        $pool = new Pool($client, $requests(1), [
+            'concurrency' => 1,
+            'fulfilled' => function ($response, $id) use (&$recieve_response) {
+
+                $response = $response->getBody()->getContents();
+                $recieve_response = json_decode($response, true);
+            },
+            'rejected' => function ($reason, $id) use (&$recieve_response) {
+                $recieve_response = $reason->getMessage();
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        $response = $recieve_response;
+
+        if (isset($response['status']) && $response['status'] == 1) {
+            # code...
+            return ['status' => true, 'response' => $response];
+        }
+
+        return ['status' => false, 'response' => $response];
     }
 
     public function balanceInquiry()
@@ -194,6 +423,18 @@ class Lifetimesms
     		$type = 'text';
     	}
 
+        $date = $time = '';
+
+        if (isset($params['date']) && !empty($params['date'])) {
+            # code...
+            $date = $params['date'];
+        }
+
+        if (isset($params['time']) && !empty($params['time'])) {
+            # code...
+            $time = $params['time'];
+        }
+
     	$query = [
 		    [
 		        'name' => 'api_token',
@@ -219,6 +460,14 @@ class Lifetimesms
 		        'name' => 'to',
 		        'contents' => implode(",", $params['to']),
 		    ],
+            [
+                'name' => 'date',
+                'contents' => $date,
+            ],
+            [
+                'name' => 'time',
+                'contents' => $time,
+            ],
 		];
 
     	$requests = function() use ($query) {
