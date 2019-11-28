@@ -70,6 +70,20 @@ $params = ['to' => ['0334809000', '03008090100', '03448090100'], 'from' => 'Life
 $response = Lifetimesms::voiceSMS($params);
 ```
 
+Check Delivery Status :
+
+```php
+$params = ['message_id' => '44a82f4e3dd9bd7a091c1127'];
+$response = Lifetimesms::deliveryStatus($params);
+```
+
+Check Voice Status :
+
+```php
+$params = ['voice_id' => '1472'];
+$response = Lifetimesms::voiceStatus($params);
+```
+
 Balance Inquiry :
 
 ```php
