@@ -702,6 +702,81 @@ class Lifetimesms
         return ['status' => false, 'response' => $response];
     }
 
+    public function networkLookup($params = [])
+    {
+        if (empty($params)) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!isset($params['phone_number']) || empty($params['phone_number'])) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!is_string($params['phone_number'])) {
+            # code...
+            return ['status' => false, 'response' => 'Invalid phone_number'];
+        }
+
+        $api_token = config('lifetimesms.api_token');
+        $api_secret = config('lifetimesms.api_secret');
+
+        if (!$api_secret || !$api_token) {
+            # code...
+            return ['status' => false, 'response' => 'API credentials are missing'];
+        }
+
+        $client = new Client(['timeout' => 320]);
+        $recieve_response = null;
+
+        $query = [
+            [
+                'name' => 'api_token',
+                'contents' => $api_token,
+            ],
+            [
+                'name' => 'api_secret',
+                'contents' => $api_secret,
+            ],
+            [
+                'name' => 'phone_number',
+                'contents' => $params['phone_number'],
+            ],
+        ];
+
+        $requests = function() use ($query) {
+
+            $uri = "http://Lifetimesms.com/network-lookup";
+            $parameters = new MultipartStream($query);
+            yield 1 => new GuzzleRequest('POST', $uri, [], $parameters);
+        };
+
+        $pool = new Pool($client, $requests(1), [
+            'concurrency' => 1,
+            'fulfilled' => function ($response, $id) use (&$recieve_response) {
+
+                $response = $response->getBody()->getContents();
+                $recieve_response = json_decode($response, true);
+            },
+            'rejected' => function ($reason, $id) use (&$recieve_response) {
+                $recieve_response = $reason->getMessage();
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        $response = $recieve_response;
+
+        if (isset($response['status']) && $response['status'] == 1) {
+            # code...
+            return ['status' => true, 'response' => $response];
+        }
+
+        return ['status' => false, 'response' => $response];
+    }
+
     public static function makeSingleAPIGetRequest($uri)
     {
         $client = new Client(['timeout' => 320, 'verify' => false]);
