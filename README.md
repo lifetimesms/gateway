@@ -77,6 +77,22 @@ $params = ['message_id' => '44a82f4e3dd9bd7a091c1127'];
 $response = Lifetimesms::deliveryStatus($params);
 ```
 
+Send Voice Request (File Upload) :
+
+```php
+$params = ['title' => 'Sample File For Voice SMS', 'file_path' => 'sample.wav'];
+// 'file_path' must be the complete path of the audio file
+// Valid extensions are mp3 and wav only
+$response = Lifetimesms::createVoiceFromFile($params);
+```
+
+Send Voice Request (Text To Speech) :
+
+```php
+$params = ['title' => 'Sample Text For Voice SMS', 'text' => 'Sample text of voice sms.'];
+$response = Lifetimesms::createVoiceFromTextToSpeech($params);
+```
+
 Check Voice Status :
 
 ```php
@@ -88,4 +104,11 @@ Balance Inquiry :
 
 ```php
 $response = Lifetimesms::balanceInquiry();
+```
+
+Network Lookup :
+
+```php
+$params = ['phone_number' => '03008090100'];
+$response = Lifetimesms::networkLookup($params);
 ```
