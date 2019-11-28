@@ -380,6 +380,156 @@ class Lifetimesms
     	return ['status' => false, 'response' => $response];
     }
 
+    public function deliveryStatus($params = [])
+    {
+        if (empty($params)) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!isset($params['message_id']) || empty($params['message_id'])) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!is_string($params['message_id'])) {
+            # code...
+            return ['status' => false, 'response' => 'Invalid message_id'];
+        }
+
+        $api_token = config('lifetimesms.api_token');
+        $api_secret = config('lifetimesms.api_secret');
+
+        if (!$api_secret || !$api_token) {
+            # code...
+            return ['status' => false, 'response' => 'API credentials are missing'];
+        }
+
+        $client = new Client(['timeout' => 320]);
+        $recieve_response = null;
+
+        $query = [
+            [
+                'name' => 'api_token',
+                'contents' => $api_token,
+            ],
+            [
+                'name' => 'api_secret',
+                'contents' => $api_secret,
+            ],
+            [
+                'name' => 'messageid',
+                'contents' => $params['message_id'],
+            ],
+        ];
+
+        $requests = function() use ($query) {
+
+            $uri = "http://Lifetimesms.com/delivery-inquiry";
+            $parameters = new MultipartStream($query);
+            yield 1 => new GuzzleRequest('POST', $uri, [], $parameters);
+        };
+
+        $pool = new Pool($client, $requests(1), [
+            'concurrency' => 1,
+            'fulfilled' => function ($response, $id) use (&$recieve_response) {
+
+                $response = $response->getBody()->getContents();
+                $recieve_response = json_decode($response, true);
+            },
+            'rejected' => function ($reason, $id) use (&$recieve_response) {
+                $recieve_response = $reason->getMessage();
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        $response = $recieve_response;
+
+        if (isset($response['status']) && $response['status'] == 1) {
+            # code...
+            return ['status' => true, 'response' => $response];
+        }
+
+        return ['status' => false, 'response' => $response];
+    }
+
+    public function voiceStatus($params = [])
+    {
+        if (empty($params)) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!isset($params['voice_id']) || empty($params['voice_id'])) {
+            # code...
+            return ['status' => false, 'response' => 'Missing some mandatory parameters'];
+        }
+
+        if (!is_string($params['voice_id'])) {
+            # code...
+            return ['status' => false, 'response' => 'Invalid voice_id'];
+        }
+
+        $api_token = config('lifetimesms.api_token');
+        $api_secret = config('lifetimesms.api_secret');
+
+        if (!$api_secret || !$api_token) {
+            # code...
+            return ['status' => false, 'response' => 'API credentials are missing'];
+        }
+
+        $client = new Client(['timeout' => 320]);
+        $recieve_response = null;
+
+        $query = [
+            [
+                'name' => 'api_token',
+                'contents' => $api_token,
+            ],
+            [
+                'name' => 'api_secret',
+                'contents' => $api_secret,
+            ],
+            [
+                'name' => 'voice_id',
+                'contents' => $params['voice_id'],
+            ],
+        ];
+
+        $requests = function() use ($query) {
+
+            $uri = "http://Lifetimesms.com/voice-status";
+            $parameters = new MultipartStream($query);
+            yield 1 => new GuzzleRequest('POST', $uri, [], $parameters);
+        };
+
+        $pool = new Pool($client, $requests(1), [
+            'concurrency' => 1,
+            'fulfilled' => function ($response, $id) use (&$recieve_response) {
+
+                $response = $response->getBody()->getContents();
+                $recieve_response = json_decode($response, true);
+            },
+            'rejected' => function ($reason, $id) use (&$recieve_response) {
+                $recieve_response = $reason->getMessage();
+            },
+        ]);
+
+        $promise = $pool->promise();
+        $promise->wait();
+
+        $response = $recieve_response;
+
+        if (isset($response['status']) && $response['status'] == 1) {
+            # code...
+            return ['status' => true, 'response' => $response];
+        }
+
+        return ['status' => false, 'response' => $response];
+    }
+
     public static function makeSingleAPIGetRequest($uri)
     {
     	$client = new Client(['timeout' => 320, 'verify' => false]);
