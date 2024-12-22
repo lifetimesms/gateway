@@ -14,8 +14,9 @@ class LifetimesmsServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('lifetimesms', function(){
-                return new Lifetimesms();
+        // Binding the service to the container
+        $this->app->singleton(Lifetimesms::class, function ($app) {
+            return new Lifetimesms();
         });
     }
 
@@ -27,11 +28,15 @@ class LifetimesmsServiceProvider extends ServiceProvider
     public function boot()
     {
         if ($this->app->runningInConsole()) {
-            # code...
             $this->registerPublishing();
         }
     }
 
+    /**
+     * Register the publishing of configuration file.
+     *
+     * @return void
+     */
     protected function registerPublishing()
     {
         $this->publishes([
