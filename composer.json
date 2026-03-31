@@ -1,26 +1,26 @@
 {
-    "name": "lifetimesms/gateway",
-    "description": "Lifetimesms sms sending module to send business SMS",
-    "type": "library",
-    "homepage": "https://github.com/lifetimesms/gateway",
-    "license": "MIT",
-    "require": {
-        "php": "^7.2 || ^8.0",
-        "guzzlehttp/guzzle": "6.5.8"
-    },
-    "authors": [
-        {
-            "name": "lifetimesms",
-            "email": "info@lifetimesms.com"
-        }
-    ],
-    "keywords": [
-        "Lifetimesms"
-    ],
-    "autoload": {
-        "psr-0": {
-            "Lifetimesms": "src"
-        }
-    },
-    "minimum-stability": "dev"
+  "name": "lifetimesms/gateway",
+  "description": "Lifetimesms sms sending module to send business SMS",
+  "type": "library",
+  "homepage": "https://github.com/lifetimesms/gateway",
+  "license": "MIT",
+  "require": {
+    "php": "^7.2 || ^8.0",
+    "guzzlehttp/guzzle": "^7.10"
+  },
+  "authors": [
+    {
+      "name": "lifetimesms",
+      "email": "info@lifetimesms.com"
+    }
+  ],
+  "keywords": [
+    "Lifetimesms"
+  ],
+  "autoload": {
+    "psr-0": {
+      "Lifetimesms": "src"
+    }
+  },
+  "minimum-stability": "stable"
 }
