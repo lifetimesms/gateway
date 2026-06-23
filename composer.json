@@ -6,7 +6,8 @@
   "license": "MIT",
   "require": {
     "php": "^7.2 || ^8.0",
-    "guzzlehttp/guzzle": "^7.10"
+    "guzzlehttp/guzzle": "^7.12.1",
+    "guzzlehttp/psr7": "^2.12.1"
   },
   "authors": [
     {
